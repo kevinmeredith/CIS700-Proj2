@@ -1,6 +1,8 @@
 package lettergame.gX;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import lettergame.ui.Letter;
 import lettergame.ui.Player;
@@ -9,7 +11,9 @@ import lettergame.ui.SecretState;
 import lettergame.ui.Word;
 
 /*
- * This player bids always bids 0.
+ * This player bids always bids 0, except for the last.
+ * If it has 6 letters, it bids more for a letter if it 
+ * can make a 7-letter word with the 7th.
  * 
  * Keep in mind that the Player superclass has the following fields: 
 	Logger logger
@@ -18,9 +22,9 @@ import lettergame.ui.Word;
 	ArrayList<Word> wordlist
  */
 
-public class BidZeroPlayer extends Player {
+public class BidZeroPlayerExceptForLastPlayer extends Player {
 
-	public BidZeroPlayer() {
+	public BidZeroPlayerExceptForLastPlayer() {
 		super();
 	}
 	
@@ -65,7 +69,17 @@ public class BidZeroPlayer extends Player {
 		//logger.trace("myID=" + myID + " and I'm bidding on " + bidLetter);
 		//logger.trace("myID= " + myID + " and my score is " + secretState.getScore());
 
-		// always bid 0		
+		if(currentLetters.size() == 6)
+		{
+			logger.trace("currentLetters is size 6.");
+			List<Character> tempList = new ArrayList<Character>(currentLetters);
+			tempList.add(bidLetter.getCharacter());
+			if(getWord(tempList).length() == 7)
+			{
+				logger.trace("Found letter that will give 7-letter word: " + bidLetter.toString());
+				return bidLetter.getValue() + 5;
+			}
+		}
 		return 0;
 	}
 
@@ -113,6 +127,37 @@ public class BidZeroPlayer extends Player {
 			}
 		}
 		logger.trace("My ID is " + myID + " and my word is " + bestword.getWord());
+		
+		return bestword.getWord();
+	}
+	
+    /*
+     * Overloaded getWord() that accepts a List of Characters.
+     */
+	public String getWord(List<Character> letters) {
+		char c[] = new char[letters.size()];
+		for (int i = 0; i < c.length; i++) {
+			c[i] = letters.get(i);
+		}
+		String s = new String(c);
+		//logger.trace("Player " + myID + " letters are " + s);
+		Word ourletters = new Word(s);
+		Word bestword = new Word("");
+
+		// iterate through all Words in the list
+		// and see which ones we can form
+		for (Word w : wordlist) {
+			if (ourletters.contains(w)) {
+				int score = w.getScore();
+				// don't forget the bonus!
+				if (w.getLength() == 7) score += 50;
+				if (score > bestword.getScore()) {
+					bestword = w;
+				}
+
+			}
+		}
+		logger.trace("My ID is " + myID + " and my temp word is " + bestword.getWord());
 		
 		return bestword.getWord();
 	}
