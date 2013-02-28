@@ -4,8 +4,7 @@ load 'GetLetterScore.rb'
 def findAverageScoreFor6And7LetterWords() 
 	map = Hash.new
 	File.open('dictionary.txt').each_line{ |s|
-		word = s.split(',').last.chomp#delete("\n")
-		
+		word = s.split(',').last.chomp
 		# if word has 6 or 7 letters
 		if (6..7).include?(word.length)
 			sum = 0
@@ -16,17 +15,18 @@ def findAverageScoreFor6And7LetterWords()
 		end
 		
 		if word.length == 7
-			map[word] = sum  + 50
+			map[word] += 50
 		end
 	}
-	sum = 0
+	total_sum = 0
 	map.each { |key, value|
-		sum += value
+		total_sum += value
 	}
-	avg = sum / map.length
+	avg = total_sum / map.length
 	
+	puts map
 	puts "average score for 6-7 letters: " + avg.to_s
-
+	
 	findLetterValues(map, avg)
 end
 
